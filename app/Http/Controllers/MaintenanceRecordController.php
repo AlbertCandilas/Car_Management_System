@@ -6,7 +6,7 @@ use App\Models\MaintenanceRecord;
 use App\Models\Car;
 use Illuminate\Http\Request;
 
-class MaintenanceController extends Controller
+class MaintenanceRecordController extends Controller
 {
     public function store(Request $request) {
         MaintenanceRecord::create($request->all());
