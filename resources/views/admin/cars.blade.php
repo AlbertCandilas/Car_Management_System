@@ -18,7 +18,7 @@
             <div class="flex items-center gap-2 w-full sm:w-auto">
                 <div class="relative flex-1 sm:w-64">
                     <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                    <input type="text" placeholder="Search plate, brand..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 transition-all">
+                    <input type="text" id="tableSearch" placeholder="Search plate, brand..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 transition-all">
                 </div>
                     <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all" 
                             data-bs-toggle="modal" 
@@ -30,7 +30,7 @@
 
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse" id="inventoryTable">
                     <thead>
                         <tr class="bg-gray-50/50 border-b border-gray-100">
                             <th class="px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Vehicle Details</th>
@@ -42,7 +42,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @forelse($cars as $car)
-                        <tr class="hover:bg-gray-50/50 transition-all">
+                        <tr class="hover:bg-gray-50/50 transition-all table-row-item">
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-3">
                                     <div class="w-12 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
@@ -55,22 +55,22 @@
                                         @endif
                                     </div>
                                     <div>
-                                        <p class="text-xs font-bold text-gray-800">{{ $car->brand }} {{ $car->model }}</p>
-                                        <p class="text-[10px] text-gray-500">{{ $car->year }}</p>
+                                        <p class="text-xs font-bold text-gray-800 searchable-field">{{ $car->brand }} {{ $car->model }}</p>
+                                        <p class="text-[10px] text-gray-500 searchable-field">{{ $car->year }}</p>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-5 py-3">
-                                <span class="text-xs font-mono font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-md">
+                                <span class="text-xs font-mono font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-md searchable-field">
                                     {{ $car->plate_number }}
                                 </span>
                             </td>
                             <td class="px-5 py-3 text-right">
-                                <p class="text-xs font-bold text-gray-800">${{ number_format($car->daily_rate, 2) }}</p>
+                                <p class="text-xs font-bold text-gray-800 whitespace-nowrap searchable-field">₱{{ number_format($car->daily_rate, 2) }}</p>
                                 <p class="text-[9px] text-gray-400">per day</p>
                             </td>
                             <td class="px-5 py-3 text-center">
-                                <span class="px-2 py-1 rounded-full text-[9px] font-bold
+                                <span class="px-2 py-1 rounded-full text-[9px] font-bold searchable-field
                                     @if($car->status === 'available') bg-green-100 text-green-600
                                     @elseif($car->status === 'rented') bg-blue-100 text-blue-600
                                     @else bg-orange-100 text-orange-600 @endif">
@@ -100,7 +100,7 @@
                         @include('components.admin-edit-modal', ['car' => $car])
 
                         @empty
-                        <tr>
+                        <tr id="noResultsRow">
                             <td colspan="5" class="px-5 py-10 text-center">
                                 <div class="flex flex-col items-center gap-2">
                                     <i class="bi bi-inbox text-3xl text-gray-200"></i>
@@ -109,19 +109,100 @@
                             </td>
                         </tr>
                         @endforelse
+                        <tr id="jsNoResultsRow" class="hidden">
+                            <td colspan="5" class="px-5 py-10 text-center">
+                                <div class="flex flex-col items-center gap-2">
+                                    <i class="bi bi-search text-3xl text-gray-200"></i>
+                                    <p class="text-xs text-gray-400">No matching vehicles found.</p>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
             
             <div class="px-5 py-3 bg-gray-50/30 border-t border-gray-100 flex items-center justify-between">
-                <p class="text-[10px] text-gray-400 font-bold uppercase">Showing {{ $cars->count() }} Vehicles</p>
+                @if(method_exists($cars, 'total'))
+                    @if($cars->total() > 0)
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">
+                            Showing {{ $cars->firstItem() }} to {{ $cars->lastItem() }} of {{ $cars->total() }} Vehicles
+                        </p>
+                    @else
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">Showing 0 Vehicles</p>
+                    @endif
+                @else
+                    <p class="text-[10px] text-gray-400 font-bold uppercase">Showing {{ $cars->count() }} Vehicles</p>
+                @endif
+                
                 <div class="flex gap-1">
-                    <button class="px-2 py-1 border border-gray-200 rounded-lg text-[10px] hover:bg-white transition-all">Prev</button>
-                    <button class="px-2 py-1 border border-gray-200 rounded-lg text-[10px] hover:bg-white transition-all">Next</button>
+                    @if(method_exists($cars, 'onFirstPage'))
+                        @if($cars->onFirstPage())
+                            <button class="px-2 py-1 border border-gray-100 rounded-lg text-[10px] text-gray-300 cursor-not-allowed" disabled>Prev</button>
+                        @else
+                            <a href="{{ $cars->previousPageUrl() }}" class="px-2 py-1 border border-gray-200 rounded-lg text-[10px] text-gray-600 hover:bg-white transition-all">Prev</a>
+                        @endif
+
+                        @if($cars->hasMorePages())
+                            <a href="{{ $cars->nextPageUrl() }}" class="px-2 py-1 border border-gray-200 rounded-lg text-[10px] text-gray-600 hover:bg-white transition-all">Next</a>
+                        @else
+                            <button class="px-2 py-1 border border-gray-100 rounded-lg text-[10px] text-gray-300 cursor-not-allowed" disabled>Next</button>
+                        @endif
+                    @else
+                        <button class="px-2 py-1 border border-gray-200 rounded-lg text-[10px] hover:bg-white transition-all">Prev</button>
+                        <button class="px-2 py-1 border border-gray-200 rounded-lg text-[10px] hover:bg-white transition-all">Next</button>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </main>
 @include('components.admin-create-modal')
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('tableSearch');
+    const tableRows = document.querySelectorAll('.table-row-item');
+    const jsNoResultsRow = document.getElementById('jsNoResultsRow');
+    const nativeNoResultsRow = document.getElementById('noResultsRow');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function (e) {
+            const query = e.target.value.toLowerCase().trim();
+            let hasVisibleRows = false;
+
+            tableRows.forEach(row => {
+                const searchableElements = row.querySelectorAll('.searchable-field');
+                let matchFound = false;
+
+                searchableElements.forEach(element => {
+                    if (element.textContent.toLowerCase().includes(query)) {
+                        matchFound = true;
+                    }
+                });
+
+                if (matchFound) {
+                    row.classList.remove('hidden');
+                    hasVisibleRows = true;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            if (nativeNoResultsRow) {
+                if (query !== '') {
+                    nativeNoResultsRow.classList.add('hidden');
+                } else if (tableRows.length === 0) {
+                    nativeNoResultsRow.classList.remove('hidden');
+                }
+            }
+
+            if (!hasVisibleRows && tableRows.length > 0) {
+                jsNoResultsRow.classList.remove('hidden');
+            } else {
+                jsNoResultsRow.classList.add('hidden');
+            }
+        });
+    }
+});
+</script>
 @endsection

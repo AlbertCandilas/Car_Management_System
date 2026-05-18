@@ -56,17 +56,17 @@
 
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase" style="font-size: 10px;">Vehicle Image</label>
-                            <div class="border border-2 border-dashed rounded-4 p-4 text-center bg-gray-50/50">
-                                <i class="bi bi-cloud-arrow-up fs-2 text-gray-400 mb-2"></i>
-                                <input type="file" name="image_path" class="form-control form-control-sm" accept="image/*">
+                            <div class="border border-dashed rounded-4 p-4 text-center bg-gray-50">
+                                <i class="bi bi-cloud-arrow-up fs-2 text-gray-400 mb-2 d-block"></i>
+                                <input type="file" name="image_path" class="form-control form-control-sm mx-auto" accept="image/*" style="max-width: 280px; border-radius: 0.5rem;">
                                 <p class="text-muted mt-2 mb-0" style="font-size: 11px;">Recommended: 800x600px (JPG, PNG)</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 d-flex gap-2">
                     <button type="button" class="btn btn-light fw-bold px-4 border" data-bs-dismiss="modal" style="border-radius: 0.75rem;">Cancel</button>
-                    <button type="submit" class="btn btn-blue-600 text-white fw-bold px-4 flex-grow-1" style="border-radius: 0.75rem; background-color: #2563eb;">Register Vehicle</button>
+                    <button type="submit" class="btn btn-blue-600 text-white fw-bold px-4 flex-grow-1 border-0" style="border-radius: 0.75rem; background-color: #2563eb;">Register Vehicle</button>
                 </div>
             </form>
         </div>
@@ -114,7 +114,10 @@
 
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase" style="font-size: 10px;">Estimated Cost ($)</label>
-                            <input type="number" step="0.01" name="cost" class="form-control border-gray-200 py-2" placeholder="0.00" required style="border-radius: 0.75rem;">
+                            <div class="input-group">
+                                <span class="input-group-text bg-gray-50 border-gray-200 text-muted" style="border-radius: 0.75rem 0 0 0.75rem;">$</span>
+                                <input type="number" step="0.01" name="cost" class="form-control border-gray-200 py-2" placeholder="0.00" required style="border-radius: 0 0.75rem 0.75rem 0;">
+                            </div>
                         </div>
 
                         <div class="col-12">
@@ -123,9 +126,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 d-flex gap-2">
                     <button type="button" class="btn btn-light fw-bold px-4 border" data-bs-dismiss="modal" style="border-radius: 0.75rem;">Cancel</button>
-                    <button type="submit" class="btn btn-orange text-white fw-bold px-4 flex-grow-1" style="border-radius: 0.75rem; background-color: #ea580c;">Log Maintenance</button>
+                    <button type="submit" class="btn btn-orange text-white fw-bold px-4 flex-grow-1 border-0" style="border-radius: 0.75rem; background-color: #ea580c;">Log Maintenance</button>
                 </div>
             </form>
         </div>

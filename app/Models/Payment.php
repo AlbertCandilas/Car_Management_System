@@ -9,7 +9,12 @@ class Payment extends Model
     protected $table = 'payments';
 
     protected $fillable = [
-        'booking_id', 'amount', 'payment_method', 'payment_status'
+        'booking_id',
+        'amount',
+        'payment_method',
+        'payment_status',
+        'transaction_id',
+        'proof_path',
     ];
 
     public function booking() {

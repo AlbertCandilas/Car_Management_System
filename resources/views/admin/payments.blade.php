@@ -18,14 +18,14 @@
             <div class="flex items-center gap-2 w-full sm:w-auto">
                 <div class="relative flex-1 sm:w-64">
                     <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                    <input type="text" placeholder="Search payments..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 transition-all">
+                    <input type="text" id="tableSearch" placeholder="Search payments..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 transition-all">
                 </div>
             </div>
         </div>
 
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="w-full">
-                <table class="w-full text-left border-collapse table-fixed">
+                <table class="w-full text-left border-collapse table-fixed" id="paymentsTable">
                     <thead>
                         <tr class="bg-gray-50/50 border-b border-gray-100">
                             <th class="w-[18%] px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Transaction Date</th>
@@ -33,41 +33,43 @@
                             <th class="w-[15%] px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Method</th>
                             <th class="w-[12%] px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Amount</th>
                             <th class="w-[13%] px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Status</th>
-                            <th class="w-[13%] px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Actions</th>
+                            <th class="w-[13%] px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @forelse($payments as $payment)
                         @php $booking = $payment->booking; @endphp
-                        <tr class="hover:bg-gray-50/50 transition-all">
+                        <tr class="hover:bg-gray-50/50 transition-all table-row-item">
                             <td class="px-5 py-3 whitespace-nowrap">
-                                <p class="text-xs font-bold text-gray-800 leading-none">
+                                <p class="text-xs font-bold text-gray-800 leading-none searchable-field">
                                     {{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}
                                 </p>
                                 <p class="text-[9px] text-gray-400">{{ \Carbon\Carbon::parse($payment->payment_date)->format('h:i A') }}</p>
                             </td>
                             <td class="px-5 py-3">
                                 <div class="flex flex-col min-w-0">
-                                    <p class="text-xs font-bold text-gray-800">{{ $payment->booking->user->name }}</p>
-                                    <p class="text-[10px] text-blue-600 font-medium">
+                                    <p class="text-xs font-bold text-gray-800 searchable-field">{{ $payment->booking->user->name }}</p>
+                                    <p class="text-[10px] text-blue-600 font-medium searchable-field">
                                         Booking #{{ $payment->booking_id }} — {{ $payment->booking->car->brand }}
                                     </p>
                                 </div>
                             </td>
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[10px] font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded uppercase tracking-tighter whitespace-nowrap">
+                                    <span class="text-[10px] font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded uppercase tracking-tighter whitespace-nowrap searchable-field">
                                         {{ $payment->payment_method }}
                                     </span>
                                 </div>
                             </td>
                             <td class="px-5 py-3 text-right">
-                                <p class="text-xs font-bold text-gray-800 whitespace-nowrap">₱{{ number_format($payment->amount, 2) }}</p>
+                                <p class="text-xs font-bold text-gray-800 whitespace-nowrap searchable-field">₱{{ number_format($payment->amount, 2) }}</p>
                             </td>
                             <td class="px-5 py-3 text-center">
-                                <span class="px-2 py-1 rounded-full text-[9px] font-bold whitespace-nowrap
+                                <span class="px-2 py-1 rounded-full text-[9px] font-bold whitespace-nowrap searchable-field
                                     @if($payment->payment_status === 'paid') 
                                         bg-green-100 text-green-600 
+                                    @elseif($payment->payment_status === 'verifying') 
+                                        bg-sky-100 text-sky-700 
                                     @elseif($payment->payment_status === 'cancelled') 
                                         bg-red-100 text-red-600 
                                     @else 
@@ -77,7 +79,7 @@
                                 </span>
                             </td>
                             <td class="px-5 py-3 text-center">
-                                <div class="flex items-center justify-center gap-2">
+                                <div class="flex items-center justify-center gap-1">
                                     <button 
                                         type="button"
                                         data-bs-toggle="modal" 
@@ -87,90 +89,121 @@
                                     >
                                         <i class="bi bi-receipt"></i>
                                     </button>
+
+                                    @if($payment->payment_status === 'verifying')
+                                        <button 
+                                            type="button"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#verifyModal{{ $payment->id }}" 
+                                            class="p-1.5 text-sky-600 bg-sky-50 hover:bg-sky-100 rounded-lg transition-all relative" 
+                                            title="Action Pending Audit"
+                                        >
+                                            <i class="bi bi-shield-check"></i>
+                                            <span class="absolute top-1 right-1 flex h-1.5 w-1.5">
+                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                                                <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-sky-500"></span>
+                                            </span>
+                                        </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
                         @empty
-                        <tr>
+                        <tr id="noResultsRow">
                             <td colspan="6" class="px-5 py-10 text-center text-gray-400 text-xs">No records found.</td>
                         </tr>
                         @endforelse
+                        <tr id="jsNoResultsRow" class="hidden">
+                            <td colspan="6" class="px-5 py-10 text-center">
+                                <div class="flex flex-col items-center gap-2">
+                                    <i class="bi bi-search text-3xl text-gray-200"></i>
+                                    <p class="text-xs text-gray-400">No matching payments found.</p>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
 
-    @foreach($payments as $payment)
-        @php $booking = $payment->booking; @endphp
-        <div class="modal" id="invoiceModal{{ $booking->id }}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem;">
-                    <div class="modal-header border-0 pb-0 pt-4 px-4">
-                        <h5 class="fw-bold text-gray-900 mb-0">Invoice Detail</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-4">
-                            <div>
-                                <p class="text-muted small mb-1 uppercase fw-bold" style="font-size: 10px;">Invoice To</p>
-                                <h6 class="fw-bold mb-0">{{ $booking->user->name }}</h6>
-                                <span class="text-muted small">{{ $booking->user->email }}</span>
-                            </div>
-                            <div class="text-end">
-                                <p class="text-muted small mb-1 uppercase fw-bold" style="font-size: 10px;">Booking Ref</p>
-                                <h6 class="fw-bold mb-0 text-uppercase">#BK-{{ str_pad($booking->id, 5, '0', STR_PAD_LEFT) }}</h6>
-                            </div>
-                        </div>
+            <div class="px-5 py-3 bg-gray-50/30 border-t border-gray-100 flex items-center justify-between">
+                @if(method_exists($payments, 'total'))
+                    @if($payments->total() > 0)
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">
+                            Showing {{ $payments->firstItem() }} to {{ $payments->lastItem() }} of {{ $payments->total() }} Payments
+                        </p>
+                    @else
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">Showing 0 Payments</p>
+                    @endif
+                @else
+                    <p class="text-[10px] text-gray-400 font-bold uppercase">Showing {{ $payments->count() }} Payments</p>
+                @endif
+                
+                <div class="flex gap-1">
+                    @if(method_exists($payments, 'onFirstPage'))
+                        @if($payments->onFirstPage())
+                            <button class="px-2 py-1 border border-gray-100 rounded-lg text-[10px] text-gray-300 cursor-not-allowed" disabled>Prev</button>
+                        @else
+                            <a href="{{ $payments->previousPageUrl() }}" class="px-2 py-1 border border-gray-200 rounded-lg text-[10px] text-gray-600 hover:bg-white transition-all">Prev</a>
+                        @endif
 
-                        <div class="bg-gray-50 rounded-4 p-3 mb-4 border border-dashed">
-                            <div class="d-flex justify-content-between">
-                                <span class="fw-bold text-dark">{{ $booking->car->brand }} {{ $booking->car->model }}</span>
-                                <span class="text-muted small">{{ $booking->car->plate_number }}</span>
-                            </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-borderless align-middle mb-0">
-                                <thead class="border-bottom">
-                                    <tr>
-                                        <th class="text-muted small fw-bold text-uppercase pb-3" style="font-size: 9px;">Description</th>
-                                        <th class="text-muted small fw-bold text-uppercase pb-3 text-end" style="font-size: 9px;">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="py-3">
-                                            <span class="d-block fw-bold text-dark">Rental Fee</span>
-                                            <span class="text-muted small">
-                                                ₱{{ number_format($booking->car->daily_rate, 2) }} x 
-                                                {{ \Carbon\Carbon::parse($booking->start_date)->diffInDays($booking->end_date) ?: 1 }} Days
-                                            </span>
-                                        </td>
-                                        <td class="py-3 text-end fw-bold text-dark">₱{{ number_format($booking->total_price, 2) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-2 text-muted small">Tax (VAT 0%)</td>
-                                        <td class="py-2 text-end text-muted small">₱0.00</td>
-                                    </tr>
-                                </tbody>
-                                <tfoot class="border-top">
-                                    <tr>
-                                        <td class="pt-3 fw-bold text-gray-900" style="font-size: 1.1rem;">Total Amount</td>
-                                        <td class="pt-3 text-end fw-bold text-blue-600" style="font-size: 1.1rem;">₱{{ number_format($booking->total_price, 2) }}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="modal-footer border-0 pt-0 pb-4 px-4">
-                        <button class="btn btn-light w-100 fw-bold py-2 border" onclick="window.print()" style="border-radius: 0.75rem;">
-                            <i class="bi bi-printer me-2"></i> Print Invoice
-                        </button>
-                    </div>
+                        @if($payments->hasMorePages())
+                            <a href="{{ $payments->nextPageUrl() }}" class="px-2 py-1 border border-gray-200 rounded-lg text-[10px] text-gray-600 hover:bg-white transition-all">Next</a>
+                        @endif
+                    @endif
                 </div>
             </div>
         </div>
-    @endforeach
+    </div>
 </main>
+
+{{-- Render the modular sub-views from your components layout path --}}
+@include('components.admin-verify-modal')
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('tableSearch');
+    const tableRows = document.querySelectorAll('.table-row-item');
+    const jsNoResultsRow = document.getElementById('jsNoResultsRow');
+    const nativeNoResultsRow = document.getElementById('noResultsRow');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function (e) {
+            const query = e.target.value.toLowerCase().trim();
+            let hasVisibleRows = false;
+
+            tableRows.forEach(row => {
+                const searchableElements = row.querySelectorAll('.searchable-field');
+                let matchFound = false;
+
+                searchableElements.forEach(element => {
+                    if (element.textContent.toLowerCase().includes(query)) {
+                        matchFound = true;
+                    }
+                });
+
+                if (matchFound) {
+                    row.classList.remove('hidden');
+                    hasVisibleRows = true;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            if (nativeNoResultsRow) {
+                if (query !== '') {
+                    nativeNoResultsRow.classList.add('hidden');
+                } else if (tableRows.length === 0) {
+                    nativeNoResultsRow.classList.remove('hidden');
+                }
+            }
+
+            if (!hasVisibleRows && tableRows.length > 0) {
+                jsNoResultsRow.classList.remove('hidden');
+            } else {
+                jsNoResultsRow.classList.add('hidden');
+            }
+        });
+    }
+});
+</script>
 @endsection

@@ -56,21 +56,21 @@
 
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase" style="font-size: 10px;">Update Image</label>
-                            <div class="border border-2 border-dashed rounded-4 p-3 text-center bg-gray-50/50">
+                            <div class="border border-dashed rounded-4 p-4 text-center bg-gray-50">
                                 @if($car->image_path)
-                                    <div class="mb-2">
-                                        <img src="{{ asset('storage/' . $car->image_path) }}" class="rounded-3" style="height: 60px; width: 80px; object-fit: cover;">
-                                        <p class="text-[10px] text-muted mb-1">Current Image</p>
+                                    <div class="mb-3">
+                                        <img src="{{ asset('storage/' . $car->image_path) }}" class="rounded-3 border" style="height: 60px; width: 80px; object-fit: cover;">
+                                        <p class="text-muted mt-1 mb-0" style="font-size: 10px;">Current Image</p>
                                     </div>
                                 @endif
-                                <input type="file" name="image_path" class="form-control form-control-sm" accept="image/*">
+                                <input type="file" name="image_path" class="form-control form-control-sm mx-auto" accept="image/*" style="max-width: 280px; border-radius: 0.5rem;">
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 d-flex gap-2">
                     <button type="button" class="btn btn-light fw-bold px-4 border" data-bs-dismiss="modal" style="border-radius: 0.75rem;">Cancel</button>
-                    <button type="submit" class="btn btn-primary text-white fw-bold px-4 flex-grow-1" style="border-radius: 0.75rem; background-color: #2563eb;">Save Changes</button>
+                    <button type="submit" class="btn btn-blue-600 text-white fw-bold px-4 flex-grow-1 border-0" style="border-radius: 0.75rem; background-color: #2563eb;">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -102,7 +102,7 @@
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase" style="font-size: 10px;">Vehicle</label>
-                            <input type="text" class="form-control border-gray-200 py-2 bg-light" value="{{ $record->car->brand }} {{ $record->car->model }}" disabled style="border-radius: 0.75rem;">
+                            <input type="text" class="form-control border-gray-200 py-2 bg-gray-50 text-muted fw-bold" value="{{ $record->car->brand }} {{ $record->car->model }}" disabled style="border-radius: 0.75rem;">
                         </div>
 
                         <div class="col-md-6">
@@ -116,7 +116,10 @@
 
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase" style="font-size: 10px;">Cost (₱)</label>
-                            <input type="number" step="0.01" name="cost" class="form-control border-gray-200 py-2" value="{{ $record->cost }}" required style="border-radius: 0.75rem;">
+                            <div class="input-group">
+                                <span class="input-group-text bg-gray-50 border-gray-200 text-muted" style="border-radius: 0.75rem 0 0 0.75rem;">₱</span>
+                                <input type="number" step="0.01" name="cost" class="form-control border-gray-200 py-2" value="{{ $record->cost }}" required style="border-radius: 0 0.75rem 0.75rem 0;">
+                            </div>
                         </div>
 
                         <div class="col-12">
@@ -125,9 +128,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 d-flex gap-2">
                     <button type="button" class="btn btn-light fw-bold px-4 border" data-bs-dismiss="modal" style="border-radius: 0.75rem;">Cancel</button>
-                    <button type="submit" class="btn btn-warning text-white fw-bold px-4 flex-grow-1" style="border-radius: 0.75rem; background-color: #ea580c;">Update Log</button>
+                    <button type="submit" class="btn btn-orange text-white fw-bold px-4 flex-grow-1 border-0" style="border-radius: 0.75rem; background-color: #ea580c;">Update Log</button>
                 </div>
             </form>
         </div>

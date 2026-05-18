@@ -8,9 +8,6 @@
                 <h2 class="fw-bold text-gray-900 mb-0 tracking-tight" style="font-size: 1.5rem;">Active Journeys</h2>
                 <p class="text-muted small mb-0">Your current rentals and reservation details.</p>
             </div>
-            <a href="{{ route('customer.bookings') }}" class="btn btn-light btn-sm border px-4 fw-bold" style="border-radius: 0.75rem; font-size: 0.8rem;">
-                <i class="bi bi-clock-history me-1"></i> Booking History
-            </a>
         </div>
         
         <div class="row g-4">
@@ -30,8 +27,14 @@
                                 </div>
                                 <div class="col-md-8">
                                     <div class="d-flex justify-content-between mb-2">
-                                        <span class="badge {{ $booking->status === 'confirmed' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning' }} px-3 py-2 rounded-3 fw-bold text-uppercase" style="font-size: 0.65rem;">
-                                            <i class="bi bi-circle-fill me-1" style="font-size: 5px;"></i> {{ $booking->status }}
+                                        <span class="badge 
+                                            @if($booking->status === 'confirmed') bg-success-subtle border border-success text-success 
+                                            @elseif($booking->status === 'completed') bg-light border text-dark 
+                                            @elseif($booking->status === 'cancelled') bg-danger-subtle border border-danger text-danger 
+                                            @else bg-warning-subtle border border-warning text-dark 
+                                            @endif 
+                                            px-3 py-2 rounded-pill fw-bold text-uppercase" style="font-size: 0.65rem;">
+                                            {{ $booking->status }}
                                         </span>
                                         <p class="text-muted small mb-0 font-monospace" style="font-size: 0.7rem;">{{ $booking->car->plate_number }}</p>
                                     </div>

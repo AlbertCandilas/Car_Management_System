@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payments', function (Blueprint $table) {
+    Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('booking_id')->constrained()->onDelete('cascade');
             $table->decimal('amount', 10, 2);
-            $table->string('payment_method');
-            $table->enum('payment_status', ['paid', 'pending', 'cancelled'])->default('pending');
+            $table->enum('payment_method', ['onsite', 'gcash']);
+            $table->enum('payment_status', ['paid', 'pending', 'cancelled', 'verifying'])->default('pending');
+            $table->string('transaction_id')->nullable()->unique();
+            $table->string('proof_path')->nullable();
             $table->timestamp('payment_date')->useCurrent();
             $table->timestamps();
         });

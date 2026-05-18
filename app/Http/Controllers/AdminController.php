@@ -36,7 +36,7 @@ class AdminController extends Controller
 
     public function cars()
     {
-        $cars = Car::all();
+        $cars = Car::paginate(10);
 
         return view('admin.cars', compact('cars'));
     }
@@ -45,7 +45,7 @@ class AdminController extends Controller
     {
         $bookings = Booking::with(['user', 'car'])
             ->latest()
-            ->get();
+            ->paginate(10); 
 
         return view('admin.bookings', compact('bookings'));
     }
@@ -54,7 +54,7 @@ class AdminController extends Controller
     {
         $customers = User::where('role', 'customer')
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('admin.customers', compact('customers'));
     }
@@ -63,7 +63,7 @@ class AdminController extends Controller
     {
         $payments = Payment::with(['booking.user', 'booking.car'])
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('admin.payments', compact('payments'));
     }
@@ -72,7 +72,7 @@ class AdminController extends Controller
     {
         $maintenanceRecords = MaintenanceRecord::with('car')
             ->orderBy('scheduled_date', 'desc')
-            ->get();
+            ->paginate(10);
 
         $cars = Car::orderBy('brand')->get();
 
@@ -166,7 +166,7 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Maintenance record updated!');
     }
 
-        public function confirmBooking(Booking $booking)
+    public function confirmBooking(Booking $booking)
     {
         $booking->update(['status' => 'confirmed']);
         
@@ -187,5 +187,33 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Booking has been cancelled.');
     }
-}
 
+    public function approvePayment(Payment $payment)
+    {
+        $payment->update(['payment_status' => 'paid']);
+
+        if ($payment->booking) {
+            $payment->booking->update(['status' => 'confirmed']);
+            if ($payment->booking->car) {
+                $payment->booking->car->update(['status' => 'rented']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Payment verification approved and booking confirmed!');
+    }
+
+    public function rejectPayment(Payment $payment)
+    {
+        $payment->update(['payment_status' => 'cancelled']);
+
+        if ($payment->booking) {
+            $payment->booking->update(['status' => 'cancelled']);
+
+            if ($payment->booking->car) {
+                $payment->booking->car->update(['status' => 'available']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Payment rejected and booking automatically cancelled.');
+    }
+}

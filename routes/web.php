@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -31,9 +32,16 @@ Route::middleware('auth')->group(function () {
     Route::patch('/admin/bookings/{booking}/confirm', [AdminController::class, 'confirmBooking'])->name('admin.bookings.confirm');
     Route::patch('/admin/bookings/{booking}/cancel', [AdminController::class, 'cancelBooking'])->name('admin.bookings.cancel');
     
+    Route::patch('/admin/payments/{payment}/approve', [AdminController::class, 'approvePayment'])->name('admin.payments.approve');
+    Route::patch('/admin/payments/{payment}/reject', [AdminController::class, 'rejectPayment'])->name('admin.payments.reject');
+    
     Route::get('/staff/dashboard', function () { return view('staff.dashboard'); })->name('staff.dashboard');
     Route::get('/customer/portal', [CustomerController::class, 'index'])->name('customer.portal');
     Route::get('/my-bookings', [CustomerController::class, 'bookingHistory'])->name('customer.bookings');
+    
     Route::resource('bookings', BookingController::class);
-    Route::delete('/bookings/{booking}/cancel', [App\Http\Controllers\BookingController::class, 'destroy'])->name('bookings.cancel');
+    Route::delete('/bookings/{booking}/cancel', [BookingController::class, 'destroy'])->name('bookings.cancel');
+
+    Route::get('/payment/gcash/{booking}', [PaymentController::class, 'showGcashCheckout'])->name('payment.gcash');
+    Route::post('/payment/gcash/{booking}/submit', [PaymentController::class, 'submitGcashProof'])->name('payment.gcash.submit');
 });

@@ -86,7 +86,7 @@
                             <i class="bi bi-hash"></i> {{ $record->car->plate_number }}
                         </p>
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-gray-700">${{ number_format($record->cost, 2) }}</span>
+                            <span class="text-xs font-bold text-gray-700">₱{{ number_format($record->cost, 2) }}</span>
                             <span class="text-[10px] text-orange-500 font-bold flex items-center gap-1">
                                 <i class="bi bi-calendar3"></i> {{ \Carbon\Carbon::parse($record->scheduled_date)->format('M d, Y') }}
                             </span>

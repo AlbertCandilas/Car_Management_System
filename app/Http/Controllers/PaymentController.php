@@ -2,18 +2,54 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Payment;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    public function store(Request $request) {
-        Payment::create([
-            'booking_id' => $request->booking_id,
-            'amount' => $request->amount,
-            'payment_method' => $request->payment_method,
-            'payment_status' => 'paid'
+    /**
+     * Show the GCash manual payment gateway view.
+     */
+    public function showGcashCheckout(Booking $booking)
+    {
+        if ($booking->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $booking->load('car');
+
+        return view('payment.gcash', compact('booking'));
+    }
+
+    /**
+     * Handle the form submission containing GCash reference number / proof of payment
+     */
+    public function submitGcashProof(Request $request, Booking $booking)
+    {
+        if ($booking->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'reference_number' => 'required|string|min:5|max:50',
+            'proof_of_payment' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
-        return redirect()->back();
+
+        $path = $request->file('proof_of_payment') 
+            ? $request->file('proof_of_payment')->store('proofs', 'public') 
+            : null;
+
+        $booking->payment()->updateOrCreate(
+            ['booking_id' => $booking->id],
+            [
+                'payment_method' => 'gcash',
+                'amount'         => $booking->total_price,
+                'payment_status' => 'verifying',
+                'transaction_id' => $request->reference_number,
+                'proof_path'     => $path
+            ]
+        );
+
+        return redirect()->route('customer.bookings')->with('success', 'GCash payment submitted for verification.');
     }
 }

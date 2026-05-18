@@ -11,25 +11,23 @@ class CustomerController extends Controller
 {
     public function index()
     {
-        // Get cars currently rented by THIS user
-        $myBookings = Booking::with('car')
+        $myBookings = Booking::with(['car', 'payment'])
             ->where('user_id', Auth::id())
             ->whereIn('status', ['pending', 'confirmed'])
             ->latest()
             ->get();
 
-        // Get cars available for rent
         $availableCars = Car::where('status', 'available')->latest()->get();
 
         return view('customer.portal', compact('myBookings', 'availableCars'));
     }
 
-        public function bookingHistory()
+    public function bookingHistory()
     {
         $bookings = Auth::user()->bookings()
-            ->with('car')
+            ->with(['car', 'payment'])
             ->latest()
-            ->paginate(10); // Pagination is better for history
+            ->paginate(10);
 
         return view('customer.bookings', compact('bookings'));
     }

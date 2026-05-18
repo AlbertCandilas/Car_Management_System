@@ -116,7 +116,7 @@
                         <div class="p-3 rounded-2xl border border-gray-100 bg-gray-50">
                             <div class="flex justify-between items-center mb-1">
                                 <span class="text-xs text-gray-500">Rental Status</span>
-                                <span class="badge bg-{{ $booking->status === 'confirmed' ? 'green' : 'yellow' }}-100 text-{{ $booking->status === 'confirmed' ? 'green' : 'yellow' }}-600 rounded-pill px-2 py-1 text-[9px] font-bold uppercase">
+                                <span class="badge bg-{{ $booking->status === 'confirmed' ? 'green' : ($booking->status === 'cancelled' ? 'red' : 'yellow') }}-100 text-{{ $booking->status === 'confirmed' ? 'green' : ($booking->status === 'cancelled' ? 'red' : 'yellow') }}-600 rounded-pill px-2 py-1 text-[9px] font-bold uppercase">
                                     {{ $booking->status }}
                                 </span>
                             </div>

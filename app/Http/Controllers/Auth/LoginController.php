@@ -20,10 +20,8 @@ class LoginController extends Controller
             
             $user = Auth::user();
 
-            // Handle redirection based on the role column in the users table
             return match($user->role) {
                 'admin'    => redirect()->route('admin.dashboard'),
-                'staff'    => redirect()->route('staff.dashboard'),
                 'customer' => redirect()->route('customer.portal'),
                 default    => redirect('/'), 
             };
