@@ -31,8 +31,8 @@ class PaymentController extends Controller
         }
 
         $request->validate([
-            'reference_number' => 'required|string|min:5|max:50',
-            'proof_of_payment' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'reference_number' => 'required|string|unique:payments,transaction_id',
+            'proof_of_payment' => 'required|image|max:2048',
         ]);
 
         $path = $request->file('proof_of_payment') 
@@ -40,15 +40,16 @@ class PaymentController extends Controller
             : null;
 
         $booking->payment()->updateOrCreate(
-            ['booking_id' => $booking->id],
-            [
-                'payment_method' => 'gcash',
-                'amount'         => $booking->total_price,
-                'payment_status' => 'verifying',
-                'transaction_id' => $request->reference_number,
-                'proof_path'     => $path
-            ]
-        );
+        [
+            'booking_id' => $booking->id 
+        ],
+        [
+            'payment_method' => 'gcash',
+            'payment_status' => 'verifying',
+            'transaction_id' => $request->reference_number,
+            'proof_path'     => $path,
+        ]
+    );
 
         return redirect()->route('customer.bookings')->with('success', 'GCash payment submitted for verification.');
     }

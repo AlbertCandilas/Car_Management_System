@@ -93,7 +93,6 @@
     </div>
 </div>
 
-{{-- SINGLE SOURCE OF TRUTH FOR MODALS --}}
 @include('components.modals')
 
 <style>

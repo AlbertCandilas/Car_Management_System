@@ -90,19 +90,21 @@
                                         <i class="bi bi-receipt"></i>
                                     </button>
 
-                                    @if($payment->payment_status === 'verifying')
+                                    @if($payment->payment_status === 'verifying' || $payment->payment_status === 'paid' || $payment->payment_status === 'cancelled')
                                         <button 
                                             type="button"
                                             data-bs-toggle="modal" 
                                             data-bs-target="#verifyModal{{ $payment->id }}" 
                                             class="p-1.5 text-sky-600 bg-sky-50 hover:bg-sky-100 rounded-lg transition-all relative" 
-                                            title="Action Pending Audit"
-                                        >
+                                            title="View Verification Details">
                                             <i class="bi bi-shield-check"></i>
-                                            <span class="absolute top-1 right-1 flex h-1.5 w-1.5">
-                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                                                <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-sky-500"></span>
-                                            </span>
+                                            
+                                            @if($payment->payment_status === 'verifying')
+                                                <span class="absolute top-1 right-1 flex h-1.5 w-1.5">
+                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                                                    <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-sky-500"></span>
+                                                </span>
+                                            @endif
                                         </button>
                                     @endif
                                 </div>
@@ -156,7 +158,6 @@
     </div>
 </main>
 
-{{-- Render the modular sub-views from your components layout path --}}
 @include('components.admin-verify-modal')
 
 <script>

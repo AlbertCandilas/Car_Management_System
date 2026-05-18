@@ -127,22 +127,6 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex align-items-center gap-3 py-3 border-top border-bottom border-gray-100 mb-4">
-                                <div class="text-center">
-                                    <i class="bi bi-fuel-pump text-gray-400 d-block small"></i>
-                                    <span class="fw-bold text-gray-700" style="font-size: 9px; text-uppercase;">Petrol</span>
-                                </div>
-                                <div class="text-center">
-                                    <i class="bi bi-gear text-gray-400 d-block small"></i>
-                                    <span class="fw-bold text-gray-700" style="font-size: 9px; text-uppercase;">Auto</span>
-                                </div>
-                                <div class="ms-auto text-end">
-                                    <span class="badge bg-blue-50 text-blue-600 px-2 py-1 rounded-2 border border-blue-100" style="font-size: 8px; font-weight: 800;">
-                                        {{ strtoupper($car->status) }}
-                                    </span>
-                                </div>
-                            </div>
-
                             <button class="btn btn-dark w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#reserveModal{{ $car->id }}"

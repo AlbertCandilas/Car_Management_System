@@ -68,7 +68,7 @@
         </div>
     </div>
 
-    @if($payment->payment_status === 'verifying')
+    @if($payment->payment_status === 'verifying' || $payment->payment_status === 'paid' || $payment->payment_status === 'cancelled')
     <div class="modal" id="verifyModal{{ $payment->id }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem;">
@@ -78,7 +78,11 @@
                 </div>
                 
                 <div class="modal-body p-4">
-                    <p class="text-muted mb-4" style="font-size: 11px;">Please check the GCash merchant wallet to confirm the payment matches before updating the status.</p>
+                    @if($payment->payment_status === 'verifying')
+                        <p class="text-muted mb-4" style="font-size: 11px;">Please check the GCash merchant wallet to confirm the payment matches before updating the status.</p>
+                    @else
+                        <p class="text-muted mb-4" style="font-size: 11px;">This payment has already been processed and cannot be changed.</p>
+                    @endif
                     
                     <div class="vstack gap-3 mb-4">
                         <div class="bg-gray-50 rounded-4 p-3 border border-dashed">
@@ -126,7 +130,11 @@
                     <form action="{{ route('admin.payments.reject', $payment->id) }}" method="POST" class="flex-fill m-0">
                         @csrf
                         @method('PATCH')
-                        <button type="submit" class="btn btn-danger btn-sm w-100 fw-bold py-2" style="border-radius: 0.75rem;">
+                        <button type="submit" 
+                            class="btn btn-danger btn-sm w-100 fw-bold py-2" 
+                            style="border-radius: 0.75rem;"
+                            @if($payment->payment_status !== 'verifying') disabled @endif
+                        >
                             Reject
                         </button>
                     </form>
@@ -134,7 +142,11 @@
                     <form action="{{ route('admin.payments.approve', $payment->id) }}" method="POST" class="flex-fill m-0">
                         @csrf
                         @method('PATCH')
-                        <button type="submit" class="btn btn-success btn-sm w-100 fw-bold py-2" style="border-radius: 0.75rem;">
+                        <button type="submit" 
+                            class="btn btn-success btn-sm w-100 fw-bold py-2" 
+                            style="border-radius: 0.75rem;"
+                            @if($payment->payment_status !== 'verifying') disabled @endif
+                        >
                             Approve
                         </button>
                     </form>
@@ -142,5 +154,5 @@
             </div>
         </div>
     </div>
-    @endif
+@endif
 @endforeach
